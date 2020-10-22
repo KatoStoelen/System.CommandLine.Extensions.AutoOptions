@@ -133,12 +133,19 @@ Task("Test")
 
     if (_isAzurePipelinesBuild)
     {
+        var testResultsFiles = GetFiles($"{_testsDir}/**/*.trx").ToList();
+
+        if (!testResultsFiles.Any())
+        {
+            return;
+        }
+
         AzurePipelines.Commands.PublishTestResults(new AzurePipelinesPublishTestResultsData
         {
             TestRunTitle = _buildName,
             TestRunner = AzurePipelinesTestRunnerType.VSTest,
             Configuration = _configuration,
-            TestResultsFiles = GetFiles($"{_testsDir}/**/*.trx").ToList()
+            TestResultsFiles = testResultsFiles
         });
     }
 });
