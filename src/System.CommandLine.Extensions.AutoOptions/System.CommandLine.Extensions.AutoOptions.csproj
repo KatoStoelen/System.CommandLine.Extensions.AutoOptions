@@ -3,11 +3,26 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>8.0</LangVersion>
+    <OutputType>library</OutputType>
+    <IsPackable>true</IsPackable>
     <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>System.CommandLine.Extensions.AutoOptions</PackageId>
+    <PackageDescription>Extension of System.CommandLine to automatically create command options</PackageDescription>
+    <PackageTags>cli;options</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>
