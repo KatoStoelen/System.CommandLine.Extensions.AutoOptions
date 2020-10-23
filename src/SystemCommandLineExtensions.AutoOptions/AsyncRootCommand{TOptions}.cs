@@ -1,17 +1,18 @@
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Threading.Tasks;
 
 namespace SystemCommandLineExtensions.AutoOptions
 {
     /// <summary>
-    /// Represents a <see cref="Command"/> with a belonging options class.
+    /// Represents a <see cref="RootCommand"/> with a belonging options class.
     /// </summary>
     /// <typeparam name="TOptions">The class containing the options of this command.</typeparam>
-    public abstract class Command<TOptions> : Command where TOptions : class
+    public abstract class AsyncRootCommand<TOptions> : RootCommand where TOptions : class
     {
         /// <summary>
-        /// Initializes a command with a belonging options class.
+        /// Initializes a root command with a belonging options class.
         /// </summary>
         /// <remarks>
         /// This constructor uses the default configuration for options
@@ -19,20 +20,18 @@ namespace SystemCommandLineExtensions.AutoOptions
         /// <see cref="OptionNamingConvention.KebabCase"/>).
         /// <para>
         /// To customize the options configuration (prefix, naming convention etc.)
-        /// use <see cref="Command{TOptions}.Command(string, Action{Command}, string?)"/>.
+        /// use <see cref="AsyncRootCommand{TOptions}.AsyncRootCommand(Action{Command}, string)"/>.
         /// </para>
         /// </remarks>
-        /// <param name="name">The name of the command.</param>
         /// <param name="description">An optional description of the command.</param>
-        protected Command(string name, string? description = null)
-            : this(name, command => command.AddOptions<TOptions>(), description)
+        protected AsyncRootCommand(string description = "")
+            : this(command => command.AddOptions<TOptions>(), description)
         {
         }
 
         /// <summary>
-        /// Initializes a command with a belonging options class.
+        /// Initializes a root command with a belonging options class.
         /// </summary>
-        /// <param name="name">The name of the command.</param>
         /// <param name="configureOptions">
         /// A delegate, accepting this <see cref="Command"/>, configuring its options.
         /// <para>
@@ -43,8 +42,8 @@ namespace SystemCommandLineExtensions.AutoOptions
         /// </para>
         /// </param>
         /// <param name="description">An optional description of the command.</param>
-        protected Command(string name, Action<Command> configureOptions, string? description = null)
-            : base(name, description)
+        protected AsyncRootCommand(Action<Command> configureOptions, string description = "")
+            : base(description)
         {
             if (configureOptions == null)
             {
@@ -53,14 +52,20 @@ namespace SystemCommandLineExtensions.AutoOptions
 
             configureOptions.Invoke(this);
 
-            Handler = CommandHandler.Create((TOptions options) => Invoke(options));
+            Handler = CommandHandler.Create((TOptions options) => InvokeAsync(options));
         }
 
         /// <summary>
-        /// Invokes the command.
+        /// Invokes the command asynchronously.
         /// </summary>
         /// <param name="options">The options of the command.</param>
-        /// <returns>An exit code.</returns>
-        protected abstract int Invoke(TOptions options);
+        /// <returns>
+        /// A <see cref="Task{TResult}"/>, whose generic argument is <see cref="int"/>,
+        /// representing the asynchronous command invocation.
+        /// <para>
+        /// The result of the task is an exit code.
+        /// </para>
+        /// </returns>
+        protected abstract Task<int> InvokeAsync(TOptions options);
     }
 }

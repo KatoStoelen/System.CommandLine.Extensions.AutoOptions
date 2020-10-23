@@ -5,13 +5,13 @@ using System.CommandLine.Invocation;
 namespace SystemCommandLineExtensions.AutoOptions
 {
     /// <summary>
-    /// Represents a <see cref="Command"/> with a belonging options class.
+    /// Represents a <see cref="RootCommand"/> with a belonging options class.
     /// </summary>
     /// <typeparam name="TOptions">The class containing the options of this command.</typeparam>
-    public abstract class Command<TOptions> : Command where TOptions : class
+    public abstract class RootCommand<TOptions> : RootCommand where TOptions : class
     {
         /// <summary>
-        /// Initializes a command with a belonging options class.
+        /// Initializes a root command with a belonging options class.
         /// </summary>
         /// <remarks>
         /// This constructor uses the default configuration for options
@@ -19,20 +19,18 @@ namespace SystemCommandLineExtensions.AutoOptions
         /// <see cref="OptionNamingConvention.KebabCase"/>).
         /// <para>
         /// To customize the options configuration (prefix, naming convention etc.)
-        /// use <see cref="Command{TOptions}.Command(string, Action{Command}, string?)"/>.
+        /// use <see cref="RootCommand{TOptions}.RootCommand(Action{Command}, string)"/>.
         /// </para>
         /// </remarks>
-        /// <param name="name">The name of the command.</param>
         /// <param name="description">An optional description of the command.</param>
-        protected Command(string name, string? description = null)
-            : this(name, command => command.AddOptions<TOptions>(), description)
+        protected RootCommand(string description = "")
+            : this(command => command.AddOptions<TOptions>(), description)
         {
         }
 
         /// <summary>
-        /// Initializes a command with a belonging options class.
+        /// Initializes a root command with a belonging options class.
         /// </summary>
-        /// <param name="name">The name of the command.</param>
         /// <param name="configureOptions">
         /// A delegate, accepting this <see cref="Command"/>, configuring its options.
         /// <para>
@@ -43,8 +41,8 @@ namespace SystemCommandLineExtensions.AutoOptions
         /// </para>
         /// </param>
         /// <param name="description">An optional description of the command.</param>
-        protected Command(string name, Action<Command> configureOptions, string? description = null)
-            : base(name, description)
+        protected RootCommand(Action<Command> configureOptions, string description = "")
+            : base(description)
         {
             if (configureOptions == null)
             {
