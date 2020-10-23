@@ -1,4 +1,6 @@
-﻿namespace System.CommandLine.Extensions.AutoOptions
+﻿using System;
+
+namespace SystemCommandLineExtensions.AutoOptions
 {
     /// <summary>
     /// Naming convantions of options.

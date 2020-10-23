@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageId>System.CommandLine.Extensions.AutoOptions</PackageId>
+    <PackageId>SystemCommandLineExtensions.AutoOptions</PackageId>
     <PackageDescription>Extension of System.CommandLine to automatically create command options</PackageDescription>
     <PackageTags>cli;options</PackageTags>
   </PropertyGroup>

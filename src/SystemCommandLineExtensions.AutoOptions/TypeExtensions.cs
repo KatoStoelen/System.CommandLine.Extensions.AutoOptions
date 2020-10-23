@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.CommandLine;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace System.CommandLine.Extensions.AutoOptions
+namespace SystemCommandLineExtensions.AutoOptions
 {
     /// <summary>
     /// Extensions of <see cref="Type"/> to generate <see cref="Option"/>s.
@@ -28,9 +30,9 @@ namespace System.CommandLine.Extensions.AutoOptions
         /// The <see cref="Type"/> containing option properties.
         /// </param>
         /// <param name="prefix">
-        /// An optional prefix of options' default name.
+        /// The prefix of options' default name.
         /// <para>
-        /// Defaults to '--'.
+        /// Defaults to <see cref="OptionPrefix.TwoHyphens"/>.
         /// </para>
         /// </param>
         /// <param name="namingConvention">
@@ -42,7 +44,7 @@ namespace System.CommandLine.Extensions.AutoOptions
         /// <returns>An <see cref="IEnumerable{T}"/> of type <see cref="Option"/>.</returns>
         public static IEnumerable<Option> GetOptions(
                 this Type optionsType,
-                string? prefix = "--",
+                OptionPrefix prefix = OptionPrefix.TwoHyphens,
                 OptionNamingConvention namingConvention = OptionNamingConvention.KebabCase) =>
             optionsType.GetOptions(property => property.Name.ToOptionName(prefix, namingConvention));
 
@@ -102,15 +104,16 @@ namespace System.CommandLine.Extensions.AutoOptions
 
         internal static string ToOptionName(
             this string optionPropertyName,
-            string? prefix,
+            OptionPrefix prefix,
             OptionNamingConvention namingConvention)
         {
+            var prefixString = prefix.AsString();
             var wordDelimiter = namingConvention.GetWordDelimiter();
             var setCasing = namingConvention.GetCasingFunc();
 
             var shouldAddWordDelimiter = !string.IsNullOrEmpty(wordDelimiter);
 
-            return prefix + (
+            return prefixString + (
                 !shouldAddWordDelimiter
                     ? setCasing.Invoke(optionPropertyName)
                     : optionPropertyName.Aggregate(
@@ -122,6 +125,17 @@ namespace System.CommandLine.Extensions.AutoOptions
                 );
         }
 
+        private static string AsString(this OptionPrefix prefix) =>
+            prefix switch
+            {
+                OptionPrefix.TwoHyphens => "--",
+                OptionPrefix.SingleHyphen => "-",
+                OptionPrefix.ForwardSlash => "/",
+
+                _ => throw new ArgumentOutOfRangeException(
+                    nameof(prefix), prefix, $"Unknown option prefix: {prefix}")
+            };
+
         private static string GetWordDelimiter(this OptionNamingConvention namingConvention) =>
             namingConvention switch
             {
@@ -132,8 +146,12 @@ namespace System.CommandLine.Extensions.AutoOptions
         private static Func<string, string> GetCasingFunc(this OptionNamingConvention namingConvention) =>
             namingConvention switch
             {
-                var conv when conv.HasFlag(OptionNamingConvention.UpperCase) => parameterName => parameterName.ToUpper(),
-                var conv when conv.HasFlag(OptionNamingConvention.LowerCase) => parameterName => parameterName.ToLower(),
+                var conv when conv.HasFlag(OptionNamingConvention.UpperCase) =>
+                    parameterName => parameterName.ToUpperInvariant(),
+
+                var conv when conv.HasFlag(OptionNamingConvention.LowerCase) =>
+                    parameterName => parameterName.ToLowerInvariant(),
+
                 _ => parameterName => parameterName
             };
     }

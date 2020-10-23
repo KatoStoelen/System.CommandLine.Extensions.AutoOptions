@@ -1,4 +1,6 @@
-namespace System.CommandLine.Extensions.AutoOptions
+using System;
+
+namespace SystemCommandLineExtensions.AutoOptions
 {
     /// <summary>
     /// An attribute specifying an alias of a command option.

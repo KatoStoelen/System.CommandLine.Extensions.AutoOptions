@@ -1,7 +1,8 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.IO;
 
-namespace System.CommandLine.Extensions.AutoOptions
+namespace SystemCommandLineExtensions.AutoOptions
 {
     /// <summary>
     /// An attribute specifying the default value of an option of type

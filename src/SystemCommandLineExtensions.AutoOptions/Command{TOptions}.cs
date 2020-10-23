@@ -1,8 +1,10 @@
+using System;
+using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace System.CommandLine.Extensions.AutoOptions
+namespace SystemCommandLineExtensions.AutoOptions
 {
     /// <summary>
     /// Represents a <see cref="Command"/> with a belonging options class.
@@ -16,9 +18,9 @@ namespace System.CommandLine.Extensions.AutoOptions
         /// <param name="name">The name of the command.</param>
         /// <param name="description">An optional description of the command.</param>
         /// <param name="optionPrefix">
-        /// An optional prefix of options' default name.
+        /// The prefix of options' default name.
         /// <para>
-        /// Defaults to '--'.
+        /// Defaults to <see cref="OptionPrefix.TwoHyphens"/>.
         /// </para>
         /// </param>
         /// <param name="namingConvention">
@@ -30,7 +32,7 @@ namespace System.CommandLine.Extensions.AutoOptions
         protected Command(
                 string name,
                 string? description = null,
-                string? optionPrefix = "--",
+                OptionPrefix optionPrefix = OptionPrefix.TwoHyphens,
                 OptionNamingConvention namingConvention = OptionNamingConvention.KebabCase)
             : this(name, property => property.Name.ToOptionName(optionPrefix, namingConvention), description)
         {
