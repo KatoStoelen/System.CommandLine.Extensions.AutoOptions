@@ -69,11 +69,17 @@ namespace SystemCommandLineExtensions.AutoOptions
         /// <param name="defaultOptionNamer">
         /// A delegate, accepting a <see cref="PropertyInfo"/>, that returns the default
         /// name of corresponding command line option.
+        /// <para>
+        /// If <see langword="null"/> or an empty string is returned, no default option
+        /// name is added and only the aliases specified via <see cref="AliasAttribute"/>
+        /// will be used. Keep in mind that the property name must match one of the aliases
+        /// for model binding to work.
+        /// </para>
         /// </param>
         /// <typeparam name="TOptions">The class defining options of this command.</typeparam>
         public static void AddOptions<TOptions>(
                 this Command command,
-                Func<PropertyInfo, string> defaultOptionNamer) where TOptions : class =>
+                Func<PropertyInfo, string?> defaultOptionNamer) where TOptions : class =>
             command.AddOptions(typeof(TOptions), defaultOptionNamer);
 
         /// <summary>
@@ -85,11 +91,17 @@ namespace SystemCommandLineExtensions.AutoOptions
         /// <param name="defaultOptionNamer">
         /// A delegate, accepting a <see cref="PropertyInfo"/>, that returns the default
         /// name of corresponding command line option.
+        /// <para>
+        /// If <see langword="null"/> or an empty string is returned, no default option
+        /// name is added and only the aliases specified via <see cref="AliasAttribute"/>
+        /// will be used. Keep in mind that the property name must match one of the aliases
+        /// for model binding to work.
+        /// </para>
         /// </param>
         public static void AddOptions(
                 this Command command,
                 Type optionsType,
-                Func<PropertyInfo, string> defaultOptionNamer) =>
+                Func<PropertyInfo, string?> defaultOptionNamer) =>
             command.AddOptions(
                 optionsType,
                 defaultOptionNamer,
@@ -156,13 +168,19 @@ namespace SystemCommandLineExtensions.AutoOptions
         /// <param name="defaultOptionNamer">
         /// A delegate, accepting a <see cref="PropertyInfo"/>, that returns the default
         /// name of corresponding command line option.
+        /// <para>
+        /// If <see langword="null"/> or an empty string is returned, no default option
+        /// name is added and only the aliases specified via <see cref="AliasAttribute"/>
+        /// will be used. Keep in mind that the property name must match one of the aliases
+        /// for model binding to work.
+        /// </para>
         /// </param>
         /// <typeparam name="TGlobalOptions">
         /// The class defining global options of this command.
         /// </typeparam>
         public static void AddGlobalOptions<TGlobalOptions>(
                 this Command command,
-                Func<PropertyInfo, string> defaultOptionNamer) where TGlobalOptions : class =>
+                Func<PropertyInfo, string?> defaultOptionNamer) where TGlobalOptions : class =>
             command.AddGlobalOptions(typeof(TGlobalOptions), defaultOptionNamer);
 
         /// <summary>
@@ -174,11 +192,17 @@ namespace SystemCommandLineExtensions.AutoOptions
         /// <param name="defaultOptionNamer">
         /// A delegate, accepting a <see cref="PropertyInfo"/>, that returns the default
         /// name of corresponding command line option.
+        /// <para>
+        /// If <see langword="null"/> or an empty string is returned, no default option
+        /// name is added and only the aliases specified via <see cref="AliasAttribute"/>
+        /// will be used. Keep in mind that the property name must match one of the aliases
+        /// for model binding to work.
+        /// </para>
         /// </param>
         public static void AddGlobalOptions(
                 this Command command,
                 Type globalOptionsType,
-                Func<PropertyInfo, string> defaultOptionNamer) =>
+                Func<PropertyInfo, string?> defaultOptionNamer) =>
             command.AddOptions(
                 globalOptionsType,
                 defaultOptionNamer,
@@ -187,7 +211,7 @@ namespace SystemCommandLineExtensions.AutoOptions
         private static void AddOptions(
             this Command command,
             Type optionsType,
-            Func<PropertyInfo, string> defaultOptionNamer,
+            Func<PropertyInfo, string?> defaultOptionNamer,
             Action<Command, Option> addOption)
         {
             if (command == null)

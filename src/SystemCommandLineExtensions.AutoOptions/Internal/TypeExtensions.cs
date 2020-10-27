@@ -11,7 +11,7 @@ namespace SystemCommandLineExtensions.AutoOptions.Internal
     internal static class TypeExtensions
     {
         public static IEnumerable<Option> GetOptions(
-            this Type optionsType, Func<PropertyInfo, string> defaultOptionNamer)
+            this Type optionsType, Func<PropertyInfo, string?> defaultOptionNamer)
         {
             var optionProperties = optionsType
                 .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
@@ -20,11 +20,20 @@ namespace SystemCommandLineExtensions.AutoOptions.Internal
             foreach (var optionProperty in optionProperties)
             {
                 var defaultOptionName = defaultOptionNamer.Invoke(optionProperty);
+
                 var aliases = new[] { defaultOptionName }
                     .Concat(optionProperty
                         .GetCustomAttributes<AliasAttribute>()
                         .Select(attribute => attribute.Alias))
+                    .Where(alias => !string.IsNullOrEmpty(alias))
                     .ToArray();
+
+                if (!aliases.Any())
+                {
+                    throw new InvalidOperationException(
+                        $"Option property '{optionProperty.Name}' on options type '{optionsType.FullName}' has no aliases");
+                }
+
                 var description = optionProperty.GetCustomAttribute<DescriptionAttribute>()?.Description;
                 var defaultValue = optionProperty.GetCustomAttribute<DefaultValueAttribute>()?.Value;
 
