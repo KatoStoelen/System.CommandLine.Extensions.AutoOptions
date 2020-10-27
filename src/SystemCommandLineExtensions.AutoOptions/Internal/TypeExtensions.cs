@@ -39,5 +39,13 @@ namespace SystemCommandLineExtensions.AutoOptions.Internal
                         description)!;
             }
         }
+
+        public static MethodInfo GetDeclaredMethod(this Type type, string methodName) =>
+            type.GetMethod(
+                methodName,
+                BindingFlags.Instance |
+                BindingFlags.Public |
+                BindingFlags.NonPublic |
+                BindingFlags.DeclaredOnly);
     }
 }

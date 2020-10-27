@@ -1,6 +1,7 @@
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using SystemCommandLineExtensions.AutoOptions.Internal;
 
 namespace SystemCommandLineExtensions.AutoOptions
 {
@@ -8,7 +9,7 @@ namespace SystemCommandLineExtensions.AutoOptions
     /// Represents a <see cref="Command"/> with a belonging options class.
     /// </summary>
     /// <typeparam name="TOptions">The class containing the options of this command.</typeparam>
-    public abstract class Command<TOptions> : Command where TOptions : class
+    public class Command<TOptions> : Command where TOptions : class
     {
         /// <summary>
         /// Initializes a command with a belonging options class.
@@ -19,13 +20,20 @@ namespace SystemCommandLineExtensions.AutoOptions
         /// <see cref="OptionNamingConvention.KebabCase"/>).
         /// <para>
         /// To customize the options configuration (prefix, naming convention etc.)
-        /// use <see cref="Command{TOptions}.Command(string, Action{Command}, string?)"/>.
+        /// use <see cref="Command{TOptions}.Command(string, Action{Command}, string?, string?)"/>.
         /// </para>
         /// </remarks>
         /// <param name="name">The name of the command.</param>
         /// <param name="description">An optional description of the command.</param>
-        protected Command(string name, string? description = null)
-            : this(name, command => command.AddOptions<TOptions>(), description)
+        /// <param name="invokeMethodName">
+        /// The name of the method to call when invoking the command.
+        /// <para>
+        /// If not specified, you would have to set the <see cref="Command.Handler"/>
+        /// property yourself (if the command should have a handler, that is).
+        /// </para>
+        /// </param>
+        protected Command(string name, string? description = null, string? invokeMethodName = null)
+            : this(name, command => command.AddOptions<TOptions>(), description, invokeMethodName)
         {
         }
 
@@ -39,11 +47,22 @@ namespace SystemCommandLineExtensions.AutoOptions
         /// E.g:
         /// </para>
         /// <para>
-        /// command =&gt; command.AddOptions&lt; TOptions &gt;(OptionPrefix.SingleHyphen, OptionNamingConvention.MatchPropertyName)
+        /// command =&gt; command.AddOptions&lt; MyOptions &gt;(OptionPrefix.SingleHyphen, OptionNamingConvention.MatchPropertyName)
         /// </para>
         /// </param>
         /// <param name="description">An optional description of the command.</param>
-        protected Command(string name, Action<Command> configureOptions, string? description = null)
+        /// <param name="invokeMethodName">
+        /// The name of the method to call when invoking the command.
+        /// <para>
+        /// If not specified, you would have to set the <see cref="Command.Handler"/>
+        /// property yourself (if the command should have a handler, that is).
+        /// </para>
+        /// </param>
+        protected Command(
+                string name,
+                Action<Command> configureOptions,
+                string? description = null,
+                string? invokeMethodName = null)
             : base(name, description)
         {
             if (configureOptions == null)
@@ -53,14 +72,10 @@ namespace SystemCommandLineExtensions.AutoOptions
 
             configureOptions.Invoke(this);
 
-            Handler = CommandHandler.Create((TOptions options) => Invoke(options));
+            if (invokeMethodName != null)
+            {
+                Handler = CommandHandler.Create(GetType().GetDeclaredMethod(invokeMethodName), this);
+            }
         }
-
-        /// <summary>
-        /// Invokes the command.
-        /// </summary>
-        /// <param name="options">The options of the command.</param>
-        /// <returns>An exit code.</returns>
-        protected abstract int Invoke(TOptions options);
     }
 }
